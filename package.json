@@ -1,7 +1,7 @@
 {
   "name": "assembe-template",
   "version": "1.0.0",
-  "description": "Assembe Template App",
+  "description": "Assembe Board Demo",
   "author": "Assembe",
   "private": true,
   "scripts": {
@@ -11,9 +11,10 @@
     "build": "node build/build.js"
   },
   "dependencies": {
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "vue": "^2.5.2",
     "vue-router": "^3.0.1",
+    "vuedraggable": "^2.24.3",
     "vuetify": "^2.3.6",
     "vuex": "^3.5.1"
   },

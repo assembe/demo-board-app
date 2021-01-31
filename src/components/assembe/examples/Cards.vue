@@ -1,47 +1,76 @@
 <template>
-  <v-card max-width="800" class="mx-auto">
-    <v-card-title>Users on website</v-card-title>
-    <v-card-subtitle>If you want to block list of users, change <code>list</code> permissions for <code>_user</code> resource :)</v-card-subtitle>
-    <v-container>
-      <v-row dense>
-        <v-col
-          v-for="(item, i) in items"
-          :key="i"
-          cols="12"
-        >
-          <v-card color="green" dark>
-            <div class="d-flex flex-no-wrap justify-space-between">
-              <div>
-                <v-card-title
-                  class="headline"
-                  v-text="item.name"
-                ></v-card-title>
-              </div>
-            </div>
-          </v-card>
-        </v-col>
-      </v-row>
-    </v-container>
-  </v-card>
+  <div>
+    <v-skeleton-loader v-if="loading"
+      class="mx-auto"
+      type="list-item-two-line@3"
+    ></v-skeleton-loader>
+    <draggable v-else group="cards" :list="cards" :move="changeCard" :data-topic-id="topic.id">
+      <v-list-item two-line
+                   v-for="(card, i) in cards"
+                   :key="i">
+        <v-list-item-content>
+          <v-list-item-title>{{ card.name }}</v-list-item-title>
+          <v-list-item-subtitle>{{ card.description }}</v-list-item-subtitle>
+        </v-list-item-content>
+      </v-list-item>
+    </draggable>
+    <v-item-group>
+      <v-text-field v-model="newCardName"
+                    append-icon="mdi-plus"
+                    @click:append="makeNewCard"
+                    @keydown.enter="makeNewCard"
+                    solo
+      ></v-text-field>
+    </v-item-group>
+  </div>
+
 </template>
 
 <script>
   import sdk from "../../../api/sdk";
+  import draggable from 'vuedraggable'
 
   export default {
-    name: 'CardsExample',
+    name: 'Card',
+    components: {draggable},
+    props:['topic'],
     data() {
       return {
-        items:[]
+        cards:[],
+        newCardName:'',
+        loading: true
       }
     },
     mounted() {
-      this.getItems()
+      this.getCards()
     },
     methods: {
-      getItems() {
-        sdk.get('/api/_user').then((response) => {
-          this.items = response.data.items;
+      getCards() {
+        this.loading = true;
+        sdk.get('/api/topic/'+this.topic.id+'/cards?amount=10000&relations=0').then((response) => {
+          this.cards = response.data.items;
+          this.loading = false;
+        })
+      },
+      makeNewCard() {
+        sdk.post('/api/card', {
+          name: this.newCardName,
+          description:'',
+          finished:false,
+          topic: this.topic.id
+        }).then((response) => {
+          this.cards.push(response.data)
+          this.newCardName = '';
+        })
+      },
+      changeCard(event) {
+        let card = event.draggedContext.element;
+        let topicId = event.to.dataset.topicId;
+        sdk.put('/api/card/'+card.id, {
+          name: card.name,
+          description:card.description,
+          finished:card.finished,
+          topic: topicId
         })
       }
     }

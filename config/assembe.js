@@ -1,5 +1,5 @@
 'use strict'
 module.exports = {
-  apiHost: 'http://project_1.cloudsaasapps.test/',
+  apiHost: 'https://2wsff1.assembeapp.com/',
   redirectAfterLogin: '/dashboard'
 }

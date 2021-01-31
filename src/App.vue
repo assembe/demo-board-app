@@ -86,7 +86,7 @@
       dark
     >
       <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
-      <v-toolbar-title>Assembe Template App</v-toolbar-title>
+      <v-toolbar-title>Assembe Board Demo</v-toolbar-title>
     </v-app-bar>
 
     <v-main>
