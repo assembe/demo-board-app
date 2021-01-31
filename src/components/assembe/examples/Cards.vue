@@ -66,10 +66,7 @@
       changeCard(event) {
         let card = event.draggedContext.element;
         let topicId = event.to.dataset.topicId;
-        sdk.put('/api/card/'+card.id, {
-          name: card.name,
-          description:card.description,
-          finished:card.finished,
+        sdk.patch('/api/card/'+card.id, {
           topic: topicId
         })
       }

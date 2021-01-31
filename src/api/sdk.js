@@ -40,6 +40,15 @@ export default {
       headers: getHeaders()
     })
   },
+  patch(url, data) {
+    return axios({
+      method: 'patch',
+      url,
+      baseURL: config.apiHost,
+      data,
+      headers: getHeaders()
+    })
+  },
   delete(url, data) {
     return axios({
       method: 'delete',
