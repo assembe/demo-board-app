@@ -3,6 +3,8 @@
     <v-card width="300" class="mr-2 mb-2 board-card"
             v-for="(topic, i) in topics"
             :key="i"
+            :color="getColor(topic.color)"
+            :dark="getColorDark(topic.color)"
     >
       <v-card-title v-text="topic.name" @dblclick="editTopic(topic)"></v-card-title>
       <v-container>
@@ -71,6 +73,15 @@
                 ></v-text-field>
               </v-col>
             </v-row>
+            <v-row>
+              <v-col cols="12">
+                <v-select v-model="editingTopicData.color"
+                          :items="colors"
+                          label="Color"
+                          outlined
+                ></v-select>
+              </v-col>
+            </v-row>
           </v-container>
         </v-card-text>
         <v-card-actions>
@@ -107,15 +118,37 @@
         editingTopicData: {
           id:0,
           name:'',
+          color:'white',
         },
         editingTopic:false,
         savingTopic:false,
+        colors: [
+          'white', 'green','red','blue',
+        ]
       }
     },
     mounted() {
       this.getTopics()
     },
     methods: {
+      getColor(color) {
+        switch (color){
+          case 'green': return '#35ca35';
+          case 'red': return '#d22d2d';
+          case 'blue': return '#3b3bdb';
+        }
+
+        return 'white';
+      },
+      getColorDark(color) {
+        switch (color){
+          case 'green':
+          case 'red':
+          case 'blue': return true;
+        }
+
+        return false;
+      },
       getTopics() {
         sdk.get('/api/topic?amount=10000&relations=0').then((response) => {
           this.topics = response.data.items;
@@ -133,12 +166,14 @@
       editTopic(topic) {
         this.editingTopicData.id = topic.id;
         this.editingTopicData.name = topic.name;
+        this.editingTopicData.color = topic.color ? topic.color : 'white';
         this.editingTopic = true;
       },
       saveEditingTopic() {
         this.savingTopic = true;
         sdk.patch('/api/topic/'+this.editingTopicData.id, {
           name: this.editingTopicData.name,
+          color: this.editingTopicData.color
         }).then((response) => {
           this.getTopics();
           this.savingTopic = false;
