@@ -156,7 +156,8 @@
       },
       makeNewTopic() {
         sdk.post('/api/topic', {
-          name: this.newTopicName
+          name: this.newTopicName,
+          color:'white'
         }).then((response) => {
           this.newTopicDialog = false;
           this.newTopicName = '';

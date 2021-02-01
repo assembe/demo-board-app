@@ -94,12 +94,6 @@
         <router-view/>
       </v-container>
     </v-main>
-    <v-footer
-      color="indigo"
-      app
-    >
-      <span class="white--text">Assembe &copy; {{ new Date().getFullYear() }}</span>
-    </v-footer>
   </v-app>
 </template>
 
