@@ -4,7 +4,7 @@
             v-for="(topic, i) in topics"
             :key="i"
     >
-      <v-card-title v-text="topic.name"></v-card-title>
+      <v-card-title v-text="topic.name" @dblclick="editTopic(topic)"></v-card-title>
       <v-container>
         <cards :topic="topic"></cards>
       </v-container>
@@ -51,6 +51,43 @@
         </v-dialog>
       </div>
     </template>
+    <v-dialog
+      v-model="editingTopic"
+      :persistent="savingTopic"
+      max-width="600px"
+    >
+      <v-card :loading="savingTopic">
+        <v-card-title>
+          <span class="headline">{{ editingTopicData.name }}</span>
+        </v-card-title>
+        <v-card-text>
+          <v-container>
+            <v-row>
+              <v-col cols="12">
+                <v-text-field v-model="editingTopicData.name"
+                              outlined
+                              label="Name"
+                              required
+                ></v-text-field>
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-card-text>
+        <v-card-actions>
+
+          <v-btn color="red darken-1" text @click="deleteTopic(editingTopicData.id)">
+            Delete
+          </v-btn>
+          <v-spacer></v-spacer>
+          <v-btn color="blue darken-1" text @click="editingTopic = false">
+            Close
+          </v-btn>
+          <v-btn color="blue darken-1" text @click="saveEditingTopic">
+            Save
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -67,6 +104,12 @@
         topics:[],
         newTopicName:'',
         newTopicDialog:false,
+        editingTopicData: {
+          id:0,
+          name:'',
+        },
+        editingTopic:false,
+        savingTopic:false,
       }
     },
     mounted() {
@@ -85,6 +128,29 @@
           this.newTopicDialog = false;
           this.newTopicName = '';
           this.getTopics()
+        })
+      },
+      editTopic(topic) {
+        this.editingTopicData.id = topic.id;
+        this.editingTopicData.name = topic.name;
+        this.editingTopic = true;
+      },
+      saveEditingTopic() {
+        this.savingTopic = true;
+        sdk.patch('/api/topic/'+this.editingTopicData.id, {
+          name: this.editingTopicData.name,
+        }).then((response) => {
+          this.getTopics();
+          this.savingTopic = false;
+          this.editingTopic = false;
+        })
+      },
+      deleteTopic(id) {
+        this.savingTopic = true;
+        sdk.delete('/api/topic/'+id).then((response) => {
+          this.getTopics();
+          this.savingTopic = false;
+          this.editingTopic = false;
         })
       }
     }
