@@ -8,7 +8,6 @@ import {guest, auth} from "./guard";
 Vue.use(Router)
 
 export default new Router({
-  mode: 'history',
   routes: [
     {
       path: '/',

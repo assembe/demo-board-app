@@ -5,22 +5,25 @@
                        type="list-item-two-line@3"
     ></v-skeleton-loader>
     <template v-else>
-      <draggable group="cards" :list="cards" :move="changeCard" :data-topic-id="topic.id">
-        <v-slide-x-transition group :data-topic-id="topic.id">
-          <v-list-item two-line
-                       v-for="card in cards"
-                       @dblclick="editCard(card)"
-                       :key="card.id">
-            <v-list-item-content :class="{'done':card.finished}">
-              <v-list-item-title v-text="card.name"></v-list-item-title>
-              <v-list-item-subtitle v-text="card.description"></v-list-item-subtitle>
-            </v-list-item-content>
-          </v-list-item>
-        </v-slide-x-transition>
+      <draggable group="cards" :list="cards" :move="changeCard" :data-topic-id="topic.id" v-bind="dragOptions">
+        <v-card two-line :class="{'done':card.finished}" class="mb-3 no-select"
+                v-for="card in cards"
+                @dblclick="editCard(card)"
+                :color="getColor(card.color)"
+                :dark="getColorDark(card.color)"
+                :key="card.id">
+          <v-card-title v-text="card.name"></v-card-title>
+          <v-card-text v-if="card.description">
+            <div v-for="(line, index) in makeDescription(card.description)" :key="index">
+              {{ line }}
+            </div>
+          </v-card-text>
+        </v-card>
       </draggable>
     </template>
     <v-item-group>
       <v-text-field v-model="newCardName"
+                    :dark="dark"
                     :append-icon="addingNewCard ? '' : 'mdi-plus'"
                     :loading="addingNewCard"
                     @click:append="makeNewCard"
@@ -63,6 +66,15 @@
                 ></v-switch>
               </v-col>
             </v-row>
+            <v-row>
+              <v-col cols="12">
+                <v-select v-model="editingCardData.color"
+                          :items="colors"
+                          label="Color"
+                          outlined
+                ></v-select>
+              </v-col>
+            </v-row>
           </v-container>
         </v-card-text>
         <v-card-actions>
@@ -91,9 +103,13 @@ import draggable from 'vuedraggable'
 export default {
   name: 'Card',
   components: {draggable},
-  props: ['topic'],
+  props: ['topic', 'color', 'dark'],
   data() {
     return {
+      dragOptions: {
+        delayOnTouchOnly: true,
+        delay: 100
+      },
       cards: [],
       newCardName: '',
       loading: true,
@@ -105,13 +121,38 @@ export default {
         description: '',
         finished: false,
       },
-      savingCard: false
+      savingCard: false,
+      colors: [
+        'white', 'green', 'red', 'blue',
+      ]
     }
   },
   mounted() {
     this.getCards()
   },
   methods: {
+    getColor(color) {
+      switch (color) {
+        case 'green':
+          return '#35ca35';
+        case 'red':
+          return '#d22d2d';
+        case 'blue':
+          return '#3b3bdb';
+      }
+
+      return 'white';
+    },
+    getColorDark(color) {
+      switch (color) {
+        case 'green':
+        case 'red':
+        case 'blue':
+          return true;
+      }
+
+      return false;
+    },
     getCards() {
       this.loading = true;
       sdk.get('/api/topic/' + this.topic.id + '/cards?amount=10000&relations=0').then((response) => {
@@ -125,7 +166,8 @@ export default {
         name: this.newCardName,
         description: '',
         finished: false,
-        topic: this.topic.id
+        topic: this.topic.id,
+        color: 'white'
       }).then((response) => {
         this.cards.push(response.data)
         this.newCardName = '';
@@ -144,11 +186,15 @@ export default {
       })
       card.topic = topicId;
     },
+    makeDescription(description) {
+      return description.split('\n')
+    },
     editCard(card) {
       this.editingCardData.id = card.id;
       this.editingCardData.name = card.name;
       this.editingCardData.description = card.description;
       this.editingCardData.finished = card.finished;
+      this.editingCardData.color = card.color;
       this.editingCard = true;
     },
     saveEditingCard() {
@@ -157,7 +203,8 @@ export default {
         name: this.editingCardData.name,
         description: this.editingCardData.description,
         finished: this.editingCardData.finished,
-        topic: this.topic.id
+        topic: this.topic.id,
+        color: this.editingCardData.color
       }).then((response) => {
         this.modifyCard(this.editingCardData.id, this.editingCardData);
         this.savingCard = false;
@@ -168,9 +215,10 @@ export default {
       for (let i = 0; i < this.cards.length; i++) {
         const card = this.cards[i];
         if (card.id === id) {
-            card.name= data.name;
-            card.description= data.description;
-            card.finished= data.finished;
+          card.name = data.name;
+          card.description = data.description;
+          card.finished = data.finished;
+          card.color = data.color;
 
           return;
         }
@@ -180,7 +228,7 @@ export default {
       for (let i = 0; i < this.cards.length; i++) {
         const card = this.cards[i];
         if (card.id === id) {
-          this.cards.splice(i,1);
+          this.cards.splice(i, 1);
           return;
         }
       }
@@ -205,6 +253,10 @@ h1, h2 {
 
 .done {
   text-decoration: line-through;
+}
+
+.no-select {
+  user-select: none;
 }
 
 </style>

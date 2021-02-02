@@ -8,6 +8,24 @@
 2. Go to [assembe.com/home#settings](https://assembe.com/home#settings), under App address you will find your API address.
 3. Copy that domain and put to `config/assembe.js` under `apiHost` property.
 
+## Schema used in this demo
+Resource `topic` (Owned by user)
+1. `Text` name
+2. `Has many` cards (Related to `card` resource, Column belong to: `topic`)
+3. `Text` color
+
+With permissions only for user
+
+Resource `card` (Owned by user)
+1. `Text` name
+2. `Relation` topic (Related to `topic` resource)
+3. `Text with multiline` description
+4. `Boolean` finished
+5. `Text` color
+
+With permissions only for user
+
+
 ## Build Setup
 
 ``` bash

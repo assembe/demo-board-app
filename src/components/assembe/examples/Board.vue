@@ -1,16 +1,21 @@
 <template>
   <div class="board-container">
-    <v-card width="300" class="mr-2 mb-2 board-card"
+    <v-sheet width="300" class="mr-2 mb-2 board-card"
             v-for="(topic, i) in topics"
+            elevation="0"
             :key="i"
             :color="getColor(topic.color)"
-            :dark="getColorDark(topic.color)"
     >
-      <v-card-title v-text="topic.name" @dblclick="editTopic(topic)"></v-card-title>
+      <v-card-title v-text="topic.name" @dblclick="editTopic(topic)"
+                    :class="{'white--text':getColorDark(topic.color)}"
+      ></v-card-title>
       <v-container>
-        <cards :topic="topic"></cards>
+        <cards :topic="topic"
+               :color="getColor(topic.color)"
+               :dark="getColorDark(topic.color)"
+        ></cards>
       </v-container>
-    </v-card>
+    </v-sheet>
     <template>
       <div class="text-center">
         <v-dialog
@@ -210,6 +215,6 @@
   .board-card{
     flex-shrink: 0;
     width: 300px;
+    user-select: none;
   }
-
 </style>
