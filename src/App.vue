@@ -98,12 +98,15 @@
 </template>
 
 <script>
+  import sdk from "./api/sdk";
   export default {
+
     data: () => ({
       drawer: null,
     }),
     methods: {
       logout() {
+        sdk.post('/api/auth/logout')
         this.$store.dispatch('logout');
         this.$router.push('/');
       }
